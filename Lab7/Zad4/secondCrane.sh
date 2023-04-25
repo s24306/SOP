@@ -9,18 +9,19 @@ moveFile(){
   	file="Buffer/${fileName}"
   	mv $file SecondPlace/
   	filesMoved=$((filesMoved+1))
+  	echo "Second crane has moved $fileName from Buffer to SecondPlace"
 }
 
 end_of_shift(){
-	echo "End. The Second Crane moved a total of ${filesMoved} files."
-	exit 3
+	exit $filesMoved
 }
 
 while : ; do
-	if [ "$(ls -AU Buffer/) || $(ps -p $1 > /dev/null)" ]; then
+	if [[ "$(ls -AU Buffer/)" || "$([[ -d proc/$1 ]])" ]]; then
 		if [ "$(ls -AU Buffer/)" ]; then
-			echo "Crane 2: Not Empty"
 			moveFile
 		fi
+	else
+		end_of_shift
 	fi
 done

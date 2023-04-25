@@ -7,18 +7,17 @@ moveFile(){
   	file="FirstPlace/${fileName}"
   	mv $file Buffer/
   	filesMoved=$((filesMoved+1))
+  	echo "First crane has moved $fileName from FirstPlace to Buffer"
 }
 
 while : ; do
 	if [ "$(ls -AU FirstPlace/)" ]; then
-		echo "Not Empty"
 		if [[ $(ls Buffer/ | wc -l) -ge 3 ]]; then
 			echo "Buffer full"
 		else
 			moveFile
 		fi
 	else
-		echo "Empty. The First Crane moved a total of ${filesMoved} files."
-		exit 2
+		exit $filesMoved
 	fi
 done

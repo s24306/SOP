@@ -2,7 +2,6 @@
 
 trap start SIGUSR1
 trap stop SIGINT
-trap check_child_exit_code SIGCHLD
 
 firstCranePID=0
 secondCranePID=0
@@ -10,8 +9,18 @@ secondCranePID=0
 start() {
   ./firstCrane.sh &
   firstCranePID=$!
+  echo "First crane operator has started working"
   ./secondCrane.sh $firstCranePID &
   secondCranePID=$!
+  echo "Second crane operator has started working"
+  wait $firstCranePID
+  firstCraneFiles=$?
+  echo "First crane has ended work. It moved $firstCraneFiles files."
+  wait $secondCranePID
+  secondCraneFiles=$?
+  echo "Second crane has ended work. It moved $secondCraneFiles files."
+  echo "Work's done."
+  exit
 }
 
 stop() {
@@ -21,20 +30,7 @@ stop() {
   exit
 }
 
-check_child_exit_code() {
-	CODE=$?
-	echo $CODE
-	if [[ $CODE -eq 0 ]];then
-		sleep 2
-		echo "Supervisor: First crane ended work"
-		kill -SIGUSR2 $secondCranePID
-		wait $secondCranePID
-		echo "Supervisor: Second crane ended work"
-		exit
-	fi
-}
-
 while : ; do
-  echo "Moj PID to: $$ ;"
+  echo "Supervisor PID is: $$ ;"
   sleep 10
 done
